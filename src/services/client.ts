@@ -40,20 +40,40 @@ export async function uploadFoodImage(
   return { path, publicUrl: data.publicUrl };
 }
 
+// --- Image helpers ---
+/** Resize an image to fit within maxDim and return a JPEG base64 string */
+async function compressImage(file: File, maxDim = 1024, quality = 0.8): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > maxDim || height > maxDim) {
+        const scale = maxDim / Math.max(width, height);
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext('2d')!.drawImage(img, 0, 0, width, height);
+      // toDataURL returns "data:image/jpeg;base64,XXXX"
+      const dataUrl = canvas.toDataURL('image/jpeg', quality);
+      resolve(dataUrl.split(',')[1]);
+    };
+    img.onerror = reject;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
 // --- AI Analysis ---
 export async function analyzeImage(imageFile: File): Promise<AnalysisResult> {
-  // Convert to base64 so the API route can send it directly to OpenAI
-  const base64 = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve((reader.result as string).split(',')[1]);
-    reader.onerror = reject;
-    reader.readAsDataURL(imageFile);
-  });
+  // Compress & convert to base64 (keeps payload well under 10 MB)
+  const base64 = await compressImage(imageFile);
 
   const res = await fetch('/api/analyze', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ imageBase64: base64, mimeType: imageFile.type }),
+    body: JSON.stringify({ imageBase64: base64, mimeType: 'image/jpeg' }),
   });
 
   if (!res.ok) {
