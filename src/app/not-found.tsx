@@ -7,7 +7,7 @@ export default function NotFound() {
       <p className="text-sm text-[var(--color-muted)]">Page not found.</p>
       <Link
         href="/dashboard"
-        className="rounded-md bg-[var(--color-text)] px-4 py-2 text-sm font-medium text-white"
+        className="rounded-md bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-white"
       >
         Back to dashboard
       </Link>

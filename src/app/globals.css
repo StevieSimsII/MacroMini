@@ -1,18 +1,38 @@
 @import "tailwindcss";
 
 /* ============================================================
-   MacroMini — Design tokens (monochrome palette)
+   MacroMini — Design tokens (clean + vibrant)
    ============================================================ */
 :root {
   --color-bg:        #ffffff;
-  --color-surface:   #f6f6f6;
-  --color-border:    #e2e2e2;
-  --color-muted:     #8b8b8b;
-  --color-text:      #1a1a1a;
-  --color-text-secondary: #555555;
-  --color-accent:    #333333;
-  --color-hover:     #f0f0f0;
-  --radius:          6px;
+  --color-surface:   #f8f9fa;
+  --color-border:    #e5e7eb;
+  --color-muted:     #9ca3af;
+  --color-text:      #111827;
+  --color-text-secondary: #6b7280;
+  --color-accent:    #2563eb;
+  --color-accent-light: #dbeafe;
+  --color-hover:     #f3f4f6;
+  --color-success:   #16a34a;
+  --color-warning:   #f59e0b;
+  --color-danger:    #dc2626;
+  --radius:          8px;
+
+  /* Macro-specific colors */
+  --macro-calories:  #2563eb;
+  --macro-protein:   #7c3aed;
+  --macro-carbs:     #f59e0b;
+  --macro-fat:       #ef4444;
+
+  --background: #ffffff;
+  --foreground: #111827;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 }
 
 /* ============================================================
@@ -25,6 +45,7 @@
 body {
   background: var(--color-bg);
   color: var(--color-text);
+  font-family: var(--font-sans), -apple-system, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -46,9 +67,8 @@ body {
   margin: 0;
 }
 
-/* Subtle shadow (used sparingly) */
 .shadow-subtle {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 /* ============================================================
@@ -66,20 +86,24 @@ body {
 }
 
 /* ============================================================
-   Macro bar (used in dashboard / food detail)
+   Macro bar (color-coded progress bars)
    ============================================================ */
 .macro-bar {
-  height: 6px;
-  border-radius: 3px;
+  height: 8px;
+  border-radius: 4px;
   background: var(--color-surface);
   overflow: hidden;
 }
 .macro-bar-fill {
   height: 100%;
-  border-radius: 3px;
-  background: var(--color-text);
+  border-radius: 4px;
   transition: width 0.4s ease;
 }
+.macro-bar-fill.calories { background: var(--macro-calories); }
+.macro-bar-fill.protein  { background: var(--macro-protein); }
+.macro-bar-fill.carbs    { background: var(--macro-carbs); }
+.macro-bar-fill.fat      { background: var(--macro-fat); }
+.macro-bar-fill.default  { background: var(--color-accent); }
 
 /* ============================================================
    Animations
@@ -97,33 +121,8 @@ body {
   100% { background-position: 200% 0; }
 }
 .skeleton {
-  background: linear-gradient(90deg, var(--color-surface) 25%, #ececec 50%, var(--color-surface) 75%);
+  background: linear-gradient(90deg, var(--color-surface) 25%, #e5e7eb 50%, var(--color-surface) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: var(--radius);
-}
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }

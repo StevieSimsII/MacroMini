@@ -44,7 +44,7 @@ export default function MealsClient({ mealTotals, entries }: Props) {
           action={
             <Link
               href="/capture"
-              className="inline-flex items-center gap-1 rounded-md bg-[var(--color-text)] px-4 py-2 text-xs font-medium text-white"
+              className="inline-flex items-center gap-1 rounded-md bg-[var(--color-accent)] px-4 py-2 text-xs font-medium text-white"
             >
               Add food
             </Link>

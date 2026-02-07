@@ -30,10 +30,10 @@ export const STATUS_LABELS: Record<string, string> = {
   about_to_purchase: 'About to buy',
 };
 
-/** Macro colors (monochrome shades for charts) */
+/** Macro colors (vibrant, distinct per macro) */
 export const MACRO_COLORS = {
-  calories: '#1a1a1a',
-  protein: '#555555',
-  carbs: '#888888',
-  fat: '#bbbbbb',
+  calories: '#2563eb',
+  protein: '#7c3aed',
+  carbs: '#f59e0b',
+  fat: '#ef4444',
 } as const;

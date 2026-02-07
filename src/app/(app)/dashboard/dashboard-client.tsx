@@ -39,10 +39,10 @@ export default function DashboardClient({
           </span>
         </div>
         <div className="space-y-2">
-          <MacroBar label="Calories" current={todayTotals.calories} target={targets.calories} unit="kcal" />
-          <MacroBar label="Protein" current={todayTotals.protein_g} target={targets.protein_g} />
-          <MacroBar label="Carbs" current={todayTotals.carbs_g} target={targets.carbs_g} />
-          <MacroBar label="Fat" current={todayTotals.fat_g} target={targets.fat_g} />
+          <MacroBar label="Calories" current={todayTotals.calories} target={targets.calories} unit="kcal" macro="calories" />
+          <MacroBar label="Protein" current={todayTotals.protein_g} target={targets.protein_g} macro="protein" />
+          <MacroBar label="Carbs" current={todayTotals.carbs_g} target={targets.carbs_g} macro="carbs" />
+          <MacroBar label="Fat" current={todayTotals.fat_g} target={targets.fat_g} macro="fat" />
         </div>
       </section>
 
@@ -51,8 +51,8 @@ export default function DashboardClient({
       {/* ---- Quick Add ---- */}
       <Link
         href="/capture"
-        className="flex items-center justify-center gap-2 rounded-md border border-dashed py-3 text-sm font-medium transition-colors hover:bg-[var(--color-hover)]"
-        style={{ borderColor: 'var(--color-border)' }}
+        className="flex items-center justify-center gap-2 rounded-md border border-dashed py-3 text-sm font-medium text-[var(--color-accent)] transition-colors hover:bg-[var(--color-accent-light)]"
+        style={{ borderColor: 'var(--color-accent)' }}
       >
         <Camera size={18} />
         Snap or upload a food item
@@ -101,7 +101,7 @@ export default function DashboardClient({
             action={
               <Link
                 href="/capture"
-                className="inline-flex items-center gap-1.5 rounded-md bg-[var(--color-text)] px-4 py-2 text-xs font-medium text-white"
+                className="inline-flex items-center gap-1.5 rounded-md bg-[var(--color-accent)] px-4 py-2 text-xs font-medium text-white"
               >
                 <Camera size={14} />
                 Add food

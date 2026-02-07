@@ -219,7 +219,7 @@ export default function FoodDetailClient({ item }: { item: FoodItem }) {
                 onClick={() => setStatus(s)}
                 className={`rounded border px-2 py-1.5 text-[11px] font-medium transition-colors ${
                   status === s
-                    ? 'border-[var(--color-text)] bg-[var(--color-text)] text-white'
+                    ? 'border-[var(--color-accent)] bg-[var(--color-accent)] text-white'
                     : 'border-[var(--color-border)] hover:bg-[var(--color-hover)]'
                 }`}
               >

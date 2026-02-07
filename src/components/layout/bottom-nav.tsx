@@ -34,14 +34,14 @@ export default function BottomNav() {
               href={href}
               className={cn(
                 'flex flex-col items-center gap-0.5 px-3 py-1 text-xs transition-colors',
-                active ? 'text-[var(--color-text)]' : 'text-[var(--color-muted)]'
+                active ? 'text-[var(--color-accent)]' : 'text-[var(--color-muted)]'
               )}
             >
               {href === '/capture' ? (
                 <span className="flex h-10 w-10 items-center justify-center rounded-full border-2"
                       style={{
-                        borderColor: active ? 'var(--color-text)' : 'var(--color-border)',
-                        background: active ? 'var(--color-text)' : 'transparent',
+                        borderColor: active ? 'var(--color-accent)' : 'var(--color-border)',
+                        background: active ? 'var(--color-accent)' : 'transparent',
                       }}>
                   <Icon size={20} color={active ? '#fff' : 'var(--color-muted)'} />
                 </span>
