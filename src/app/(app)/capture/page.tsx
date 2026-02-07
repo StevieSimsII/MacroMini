@@ -94,9 +94,6 @@ export default function CapturePage() {
       const user = await getCurrentUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Upload to Supabase storage
-      const { publicUrl } = await uploadFoodImage(user.id, imageFile);
-
       // Analyze — send the raw file (converted to base64 inside analyzeImage)
       const result = await analyzeImage(imageFile);
       setAnalysis(result);
@@ -117,13 +114,23 @@ export default function CapturePage() {
       const user = await getCurrentUser();
       if (!user) throw new Error('Not authenticated');
 
+      // Upload to Supabase storage (best-effort, don't block save on failure)
+      let imageUrl: string | null = null;
+      try {
+        const { publicUrl } = await uploadFoodImage(user.id, imageFile);
+        imageUrl = publicUrl;
+      } catch {
+        // Storage upload failed — save without hosted image URL
+        console.warn('Image upload failed, saving without image URL');
+      }
+
       // Create food item
       const foodItem = await createFoodItem({
         user_id: user.id,
         name: analysis.name,
         brand: analysis.brand || null,
-        image_url: imagePreview || null,
-        thumbnail_url: imagePreview || null,
+        image_url: imageUrl,
+        thumbnail_url: imageUrl,
         serving_size: analysis.serving_size || null,
         calories: analysis.calories,
         protein_g: analysis.protein_g,
