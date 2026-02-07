@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import type { Database, SubscriptionTier } from '@/lib/types';
 
+// Allow up to 30s for OpenAI Vision analysis on Vercel
+export const maxDuration = 30;
+
 /**
  * POST /api/analyze
  * Accepts { imageUrl } and returns structured nutrition JSON.
