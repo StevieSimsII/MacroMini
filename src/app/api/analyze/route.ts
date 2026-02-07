@@ -34,27 +34,30 @@ export async function POST(req: NextRequest) {
       .single() as any;
 
     if (profileError || !profile) {
-      return NextResponse.json({ error: 'User profile not found' }, { status: 404 });
+      // If profile not found, allow analysis but skip usage tracking
+      console.warn('Profile lookup failed:', profileError?.message);
     }
 
     // Check if usage period has expired and needs reset
-    const resetDate = new Date(profile.analyses_reset_at);
-    const now = new Date();
-    if (now > resetDate) {
-      // Reset the counter
-      await supabase
-        .from('profiles')
-        .update({
-          analyses_count: 0,
-          analyses_reset_at: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(), // +30 days
-        })
-        .eq('id', userId);
-      profile.analyses_count = 0;
+    if (profile?.analyses_reset_at) {
+      const resetDate = new Date(profile.analyses_reset_at);
+      const now = new Date();
+      if (now > resetDate) {
+        // Reset the counter
+        await supabase
+          .from('profiles')
+          .update({
+            analyses_count: 0,
+            analyses_reset_at: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          })
+          .eq('id', userId);
+        profile.analyses_count = 0;
+      }
     }
 
     // Check limits for free tier
     const FREE_TIER_LIMIT = 10;
-    if (profile.subscription_tier === 'free' && profile.analyses_count >= FREE_TIER_LIMIT) {
+    if (profile?.subscription_tier === 'free' && (profile.analyses_count ?? 0) >= FREE_TIER_LIMIT) {
       return NextResponse.json(
         {
           error: 'Free tier limit reached',
@@ -136,20 +139,27 @@ Be accurate. If unsure, estimate conservatively and lower confidence.`,
 
     const result = JSON.parse(jsonStr.trim());
 
-    // Increment usage counter
-    await supabase
-      .from('profiles')
-      .update({
-        analyses_count: profile.analyses_count + 1,
-      })
-      .eq('id', userId);
+    // Increment usage counter & log (best-effort — don't fail the response)
+    try {
+      await supabase
+        .from('profiles')
+        .update({
+          analyses_count: (profile.analyses_count ?? 0) + 1,
+        })
+        .eq('id', userId);
+    } catch (e) {
+      console.warn('Failed to update analyses_count:', e);
+    }
 
-    // Log the analysis for tracking
-    await supabase.from('analyses_log').insert({
-      user_id: userId,
-      tokens_used: data.usage?.total_tokens || 0,
-      cost_cents: Math.ceil((data.usage?.total_tokens || 0) * 0.001), // rough estimate
-    });
+    try {
+      await supabase.from('analyses_log').insert({
+        user_id: userId,
+        tokens_used: data.usage?.total_tokens || 0,
+        cost_cents: Math.ceil((data.usage?.total_tokens || 0) * 0.001),
+      });
+    } catch (e) {
+      console.warn('Failed to insert analyses_log:', e);
+    }
 
     return NextResponse.json(result);
   } catch (error) {
