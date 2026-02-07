@@ -1,5 +1,108 @@
 @import "tailwindcss";
 
+/* ============================================================
+   MacroMini — Design tokens (monochrome palette)
+   ============================================================ */
+:root {
+  --color-bg:        #ffffff;
+  --color-surface:   #f6f6f6;
+  --color-border:    #e2e2e2;
+  --color-muted:     #8b8b8b;
+  --color-text:      #1a1a1a;
+  --color-text-secondary: #555555;
+  --color-accent:    #333333;
+  --color-hover:     #f0f0f0;
+  --radius:          6px;
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   Utility classes (used alongside Tailwind)
+   ============================================================ */
+.card {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+
+.divider {
+  height: 1px;
+  background: var(--color-border);
+  border: none;
+  margin: 0;
+}
+
+/* Subtle shadow (used sparingly) */
+.shadow-subtle {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* ============================================================
+   Scrollbar (minimal)
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+/* ============================================================
+   Macro bar (used in dashboard / food detail)
+   ============================================================ */
+.macro-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--color-surface);
+  overflow: hidden;
+}
+.macro-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--color-text);
+  transition: width 0.4s ease;
+}
+
+/* ============================================================
+   Animations
+   ============================================================ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--color-surface) 25%, #ececec 50%, var(--color-surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius);
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
