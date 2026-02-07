@@ -96,8 +96,8 @@ export default function CapturePage() {
       // Upload to Supabase storage
       const { publicUrl } = await uploadFoodImage(user.id, imageFile);
 
-      // Analyze
-      const result = await analyzeImage(publicUrl);
+      // Analyze — send the raw file (converted to base64 inside analyzeImage)
+      const result = await analyzeImage(imageFile);
       setAnalysis(result);
       setStep('results');
     } catch (err: unknown) {

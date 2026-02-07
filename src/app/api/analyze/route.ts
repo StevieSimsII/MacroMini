@@ -9,10 +9,10 @@ import { NextRequest, NextResponse } from 'next/server';
  */
 export async function POST(req: NextRequest) {
   try {
-    const { imageUrl } = await req.json();
+    const { imageBase64, mimeType, imageUrl } = await req.json();
 
-    if (!imageUrl) {
-      return NextResponse.json({ error: 'imageUrl is required' }, { status: 400 });
+    if (!imageBase64 && !imageUrl) {
+      return NextResponse.json({ error: 'imageBase64 or imageUrl is required' }, { status: 400 });
     }
 
     const apiKey = process.env.OPENAI_API_KEY;
@@ -21,6 +21,11 @@ export async function POST(req: NextRequest) {
     if (!apiKey) {
       return NextResponse.json(getMockAnalysis());
     }
+
+    // Build the image content — prefer base64 (no download needed by OpenAI)
+    const imageContent = imageBase64
+      ? { type: 'image_url' as const, image_url: { url: `data:${mimeType || 'image/jpeg'};base64,${imageBase64}` } }
+      : { type: 'image_url' as const, image_url: { url: imageUrl } };
 
     // Call OpenAI GPT-4 Vision
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -57,7 +62,7 @@ Be accurate. If unsure, estimate conservatively and lower confidence.`,
             role: 'user',
             content: [
               { type: 'text', text: 'Analyze this food item for nutritional information.' },
-              { type: 'image_url', image_url: { url: imageUrl } },
+              imageContent,
             ],
           },
         ],

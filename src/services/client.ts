@@ -41,11 +41,19 @@ export async function uploadFoodImage(
 }
 
 // --- AI Analysis ---
-export async function analyzeImage(imageUrl: string): Promise<AnalysisResult> {
+export async function analyzeImage(imageFile: File): Promise<AnalysisResult> {
+  // Convert to base64 so the API route can send it directly to OpenAI
+  const base64 = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve((reader.result as string).split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(imageFile);
+  });
+
   const res = await fetch('/api/analyze', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ imageUrl }),
+    body: JSON.stringify({ imageBase64: base64, mimeType: imageFile.type }),
   });
 
   if (!res.ok) {
