@@ -21,6 +21,7 @@ export default function MealsClient({ mealTotals, entries }: Props) {
   const initialMeal = (searchParams.get('meal') as MealType) || null;
   const [expandedMeal, setExpandedMeal] = useState<MealType | null>(initialMeal);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
 
   const handleDelete = async (entryId: string) => {
     if (!confirm('Remove this item from the meal?')) return;
@@ -93,11 +94,14 @@ export default function MealsClient({ mealTotals, entries }: Props) {
                     className="flex items-center gap-3 rounded border px-3 py-2"
                     style={{ borderColor: 'var(--color-border)' }}
                   >
-                    {entry.food_item?.thumbnail_url ? (
+                    {entry.food_item?.thumbnail_url && !failedImages.has(entry.id) ? (
                       <img
                         src={entry.food_item.thumbnail_url}
                         alt=""
                         className="h-8 w-8 rounded object-cover"
+                        onError={() => {
+                          setFailedImages(prev => new Set(prev).add(entry.id));
+                        }}
                       />
                     ) : (
                       <div className="flex h-8 w-8 items-center justify-center rounded bg-[var(--color-surface)] text-xs">

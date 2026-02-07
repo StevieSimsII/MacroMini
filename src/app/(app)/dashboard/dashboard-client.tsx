@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { Camera, ChevronRight } from 'lucide-react';
 import MacroBar from '@/components/ui/macro-bar';
@@ -22,6 +23,8 @@ export default function DashboardClient({
   mealTotals,
   todayEntries,
 }: DashboardClientProps) {
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+
   const targets = {
     calories: profile?.calorie_target ?? 2000,
     protein_g: profile?.protein_target_g ?? 150,
@@ -117,11 +120,14 @@ export default function DashboardClient({
             {todayEntries.slice(0, 8).map((entry) => (
               <Link key={entry.id} href={`/food/${entry.food_item_id}`}>
                 <Card className="flex items-center gap-3">
-                  {entry.food_item?.thumbnail_url ? (
+                  {entry.food_item?.thumbnail_url && !failedImages.has(entry.id) ? (
                     <img
                       src={entry.food_item.thumbnail_url}
                       alt={entry.food_item.name}
                       className="h-10 w-10 rounded object-cover"
+                      onError={() => {
+                        setFailedImages(prev => new Set(prev).add(entry.id));
+                      }}
                     />
                   ) : (
                     <div className="flex h-10 w-10 items-center justify-center rounded bg-[var(--color-surface)] text-xs text-[var(--color-muted)]">
