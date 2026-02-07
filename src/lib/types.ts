@@ -4,6 +4,8 @@
 
 export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 export type LogStatus = 'consumed' | 'about_to_consume' | 'about_to_purchase';
+export type SubscriptionTier = 'free' | 'pro';
+export type SubscriptionStatus = 'active' | 'cancelled' | 'past_due' | 'trialing';
 
 /* ---------- Database row types ---------- */
 
@@ -16,6 +18,13 @@ export interface Profile {
   carbs_target_g: number;
   fat_target_g: number;
   diet_preference: string;
+  subscription_tier: SubscriptionTier;
+  subscription_status: SubscriptionStatus;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  subscription_current_period_end: string | null;
+  analyses_count: number;
+  analyses_reset_at: string;
   created_at: string;
   updated_at: string;
 }

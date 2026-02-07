@@ -67,17 +67,27 @@ async function compressImage(file: File, maxDim = 1024, quality = 0.8): Promise<
 
 // --- AI Analysis ---
 export async function analyzeImage(imageFile: File): Promise<AnalysisResult> {
+  // Get current user
+  const user = await getCurrentUser();
+  if (!user) throw new Error('Not authenticated');
+
   // Compress & convert to base64 (keeps payload well under 10 MB)
   const base64 = await compressImage(imageFile);
 
   const res = await fetch('/api/analyze', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ imageBase64: base64, mimeType: 'image/jpeg' }),
+    body: JSON.stringify({ imageBase64: base64, mimeType: 'image/jpeg', userId: user.id }),
   });
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
+
+    // Check if it's a limit error
+    if (err.limit_reached) {
+      throw new Error(err.message || 'Usage limit reached. Please upgrade to Pro.');
+    }
+
     throw new Error(err.error || 'Analysis failed');
   }
 

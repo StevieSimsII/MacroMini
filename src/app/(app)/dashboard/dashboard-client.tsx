@@ -5,6 +5,7 @@ import { Camera, ChevronRight } from 'lucide-react';
 import MacroBar from '@/components/ui/macro-bar';
 import Card from '@/components/ui/card';
 import EmptyState from '@/components/ui/empty-state';
+import SubscriptionStatus from '@/components/ui/subscription-status';
 import { capitalize, MEAL_ORDER, STATUS_LABELS, formatNumber } from '@/lib/utils';
 import type { Profile, MealTotalToday, LogEntry, FoodItem } from '@/lib/types';
 
@@ -45,6 +46,9 @@ export default function DashboardClient({
           <MacroBar label="Fat" current={todayTotals.fat_g} target={targets.fat_g} macro="fat" />
         </div>
       </section>
+
+      {/* ---- Subscription Status ---- */}
+      {profile && <SubscriptionStatus profile={profile} />}
 
       <hr className="divider" />
 

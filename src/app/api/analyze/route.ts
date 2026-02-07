@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import type { Database, SubscriptionTier } from '@/lib/types';
 
 /**
  * POST /api/analyze
@@ -9,10 +11,58 @@ import { NextRequest, NextResponse } from 'next/server';
  */
 export async function POST(req: NextRequest) {
   try {
-    const { imageBase64, mimeType, imageUrl } = await req.json();
+    const { imageBase64, mimeType, imageUrl, userId } = await req.json();
 
     if (!imageBase64 && !imageUrl) {
       return NextResponse.json({ error: 'imageBase64 or imageUrl is required' }, { status: 400 });
+    }
+
+    if (!userId) {
+      return NextResponse.json({ error: 'userId is required' }, { status: 400 });
+    }
+
+    // Check usage limits
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Get user's profile to check subscription and usage
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('subscription_tier, analyses_count, analyses_reset_at')
+      .eq('id', userId)
+      .single() as any;
+
+    if (profileError || !profile) {
+      return NextResponse.json({ error: 'User profile not found' }, { status: 404 });
+    }
+
+    // Check if usage period has expired and needs reset
+    const resetDate = new Date(profile.analyses_reset_at);
+    const now = new Date();
+    if (now > resetDate) {
+      // Reset the counter
+      await supabase
+        .from('profiles')
+        .update({
+          analyses_count: 0,
+          analyses_reset_at: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(), // +30 days
+        })
+        .eq('id', userId);
+      profile.analyses_count = 0;
+    }
+
+    // Check limits for free tier
+    const FREE_TIER_LIMIT = 10;
+    if (profile.subscription_tier === 'free' && profile.analyses_count >= FREE_TIER_LIMIT) {
+      return NextResponse.json(
+        {
+          error: 'Free tier limit reached',
+          message: `You've used all ${FREE_TIER_LIMIT} free analyses this month. Upgrade to Pro for unlimited analyses.`,
+          limit_reached: true,
+        },
+        { status: 402 }
+      );
     }
 
     const apiKey = process.env.OPENAI_API_KEY;
@@ -85,6 +135,22 @@ Be accurate. If unsure, estimate conservatively and lower confidence.`,
     const jsonStr = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : content;
 
     const result = JSON.parse(jsonStr.trim());
+
+    // Increment usage counter
+    await supabase
+      .from('profiles')
+      .update({
+        analyses_count: profile.analyses_count + 1,
+      })
+      .eq('id', userId);
+
+    // Log the analysis for tracking
+    await supabase.from('analyses_log').insert({
+      user_id: userId,
+      tokens_used: data.usage?.total_tokens || 0,
+      cost_cents: Math.ceil((data.usage?.total_tokens || 0) * 0.001), // rough estimate
+    });
+
     return NextResponse.json(result);
   } catch (error) {
     console.error('Analysis error:', error);
