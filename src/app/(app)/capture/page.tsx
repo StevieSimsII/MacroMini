@@ -17,6 +17,7 @@ type Step = 'capture' | 'preview' | 'analyzing' | 'results' | 'saving';
 export default function CapturePage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -201,7 +202,7 @@ export default function CapturePage() {
             ) : (
               <div className="space-y-3">
                 <button
-                  onClick={startCamera}
+                  onClick={() => cameraInputRef.current?.click()}
                   className="flex w-full flex-col items-center gap-3 rounded-md border-2 border-dashed py-12 text-sm transition-colors hover:bg-[var(--color-hover)]"
                   style={{ borderColor: 'var(--color-border)' }}
                 >
@@ -225,11 +226,21 @@ export default function CapturePage() {
                   Upload from gallery
                 </button>
 
+                {/* Camera input - forces camera to open */}
+                <input
+                  ref={cameraInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+
+                {/* Gallery input - allows choosing from gallery */}
                 <input
                   ref={fileInputRef}
                   type="file"
                   accept="image/*"
-                  capture="environment"
                   onChange={handleFileChange}
                   className="hidden"
                 />
