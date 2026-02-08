@@ -38,9 +38,6 @@ export default function DashboardClient({
       <section className="space-y-3">
         <div className="flex items-baseline justify-between">
           <h2 className="text-sm font-semibold">Today</h2>
-          <span className="text-xs text-[var(--color-muted)] tabular-nums">
-            {formatNumber(todayTotals.calories)} / {formatNumber(targets.calories)} kcal
-          </span>
         </div>
         <div className="space-y-2">
           <MacroBar label="Calories" current={todayTotals.calories} target={targets.calories} unit="kcal" macro="calories" />
