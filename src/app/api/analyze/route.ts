@@ -29,6 +29,16 @@ export async function POST(req: NextRequest) {
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Check if user is whitelisted (bypass all limits)
+    const whitelistedEmails = (process.env.WHITELISTED_EMAILS ?? '')
+      .split(',')
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+
+    const { data: authUser } = await supabase.auth.admin.getUserById(userId);
+    const userEmail = authUser?.user?.email?.toLowerCase() ?? '';
+    const isWhitelisted = whitelistedEmails.includes(userEmail);
+
     // Get user's profile to check subscription and usage
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
@@ -58,9 +68,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Check limits for free tier
+    // Check limits for free tier (whitelisted users skip this)
     const FREE_TIER_LIMIT = 10;
-    if (profile?.subscription_tier === 'free' && (profile.analyses_count ?? 0) >= FREE_TIER_LIMIT) {
+    if (!isWhitelisted && profile?.subscription_tier === 'free' && (profile.analyses_count ?? 0) >= FREE_TIER_LIMIT) {
       return NextResponse.json(
         {
           error: 'Free tier limit reached',
