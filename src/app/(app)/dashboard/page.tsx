@@ -2,6 +2,8 @@ import Header from '@/components/layout/header';
 import { getProfile, getMealTotalsToday, getTodayLogEntries } from '@/services/data';
 import DashboardClient from './dashboard-client';
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage() {
   const [profile, mealTotals, todayEntries] = await Promise.all([
     getProfile(),

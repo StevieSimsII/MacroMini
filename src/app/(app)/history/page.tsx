@@ -2,6 +2,8 @@ import Header from '@/components/layout/header';
 import { getDailyTotals, getWeeklyTrends } from '@/services/data';
 import HistoryClient from './history-client';
 
+export const dynamic = 'force-dynamic';
+
 export default async function HistoryPage() {
   const [dailyTotals, weeklyTrends] = await Promise.all([
     getDailyTotals(30),

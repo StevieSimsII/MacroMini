@@ -3,6 +3,8 @@ import { getFoodItem } from '@/services/data';
 import FoodDetailClient from './food-detail-client';
 import { notFound } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 interface Props {
   params: Promise<{ id: string }>;
 }
